@@ -15,7 +15,9 @@ import dev.zlong.komica_api.parser._2cat._2catPostParser
 import dev.zlong.komica_api.parser._2cat._2catUrlParser
 import dev.zlong.komica_api.parser.sora.*
 import dev.zlong.komica_api.request._2cat._2catBoardRequestBuilder
+import dev.zlong.komica_api.request._2cat._2catThreadRequestBuilder
 import dev.zlong.komica_api.request.sora.SoraBoardRequestBuilder
+import dev.zlong.komica_api.request.sora.SoraThreadRequestBuilder
 import dev.zlong.komica_api.toKBoard
 
 class GetAllNews(
@@ -28,13 +30,13 @@ class GetAllNews(
 
         when (board) {
             is KBoard.Sora, KBoard.人外, KBoard.格鬥遊戲, KBoard.Idolmaster, KBoard.`3D-STG`, KBoard.魔物獵人, KBoard.`TYPE-MOON` ->
-                SoraBoardParser(SoraPostParser(urlParser, SoraPostHeadParser()))
+                SoraBoardParser(SoraPostParser(urlParser, SoraPostHeadParser()), SoraThreadRequestBuilder())
             is KBoard._2catKomica ->
-                SoraBoardParser(SoraPostParser(urlParser, _2catSoraPostHeadParser(SoraUrlParser())))
+                SoraBoardParser(SoraPostParser(urlParser, _2catSoraPostHeadParser(SoraUrlParser())), SoraThreadRequestBuilder())
             is KBoard._2cat ->
-                _2catBoardParser(_2catPostParser(urlParser, _2catPostHeadParser(_2catUrlParser())))
+                _2catBoardParser(_2catPostParser(urlParser, _2catPostHeadParser(_2catUrlParser())), _2catThreadRequestBuilder())
             else ->
                 throw NotImplementedError("BoardParser of $board not implemented yet")
-        }.parse(Jsoup.parse(response.body?.string()), board.url)
+        }.parse(response.body!!, req)
     }
 }

@@ -7,34 +7,39 @@ import dev.zlong.komica_api.*
 import dev.zlong.komica_api.request.RequestBuilder
 
 class SoraBoardRequestBuilder: RequestBuilder {
-    private lateinit var _httpUrl: HttpUrl
+    private lateinit var builder: HttpUrl.Builder
 
-    override fun url(url: String): RequestBuilder {
-        this._httpUrl= url.toHttpUrl()
+    override fun url(url: String): SoraBoardRequestBuilder {
+        this.builder= url.toHttpUrl().newBuilder()
         return this
     }
 
-    override fun setPageReq(page: Int?): RequestBuilder {
-        _httpUrl = _httpUrl.newBuilder()
+    override fun url(url: HttpUrl): SoraBoardRequestBuilder {
+        this.builder= url.newBuilder()
+        return this
+    }
+
+    fun setPageReq(page: Int?): SoraBoardRequestBuilder {
+        builder = builder
             .apply {
                 if (page.isZeroOrNull()) {
                     removeFilename("htm")
                 } else {
+                    val _httpUrl = builder.build()
                     val extra = _httpUrl.pathSegments - _httpUrl.toKBoard().url.toHttpUrl().pathSegments
                     if (extra.isEmpty()) {
-                        addFilename("${page}.htm")
+                        addFilename("$page", "htm")
                     } else {
                         setFilename("${page}.htm")
                     }
                 }
             }
-            .build()
         return this
     }
 
     override fun build(): Request {
         return Request.Builder()
-            .url(_httpUrl)
+            .url(builder.build())
             .build()
     }
 }
